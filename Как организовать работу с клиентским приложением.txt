@@ -1,0 +1,137 @@
+////////////////////
+Подключение Базы Данных к приложению
+Для связи приложения и базы используется драйвер СУБД.
+обычно представляет собой обертку для 
+libpq — штатной реализации клиент-серверного протокола PostgreSQL.
+Библиотека обеспечивает удобный для прикладной разработки доступ 
+к низкоуровневым возможностям протокола.
+
+PHP
+В языке PHP работа с PostgreSQL организована с помощью
+специального расширения. 
+Под Linux, кроме самого PHP, потребуется пакет с этим расширением:
+
+$ sudo apt-get install php-cli php-pgsql
+
+PHP для Windows доступен на сайте windows.php.net/download. 
+Расширение для PostgreSQL - в комплекте, 
+но в файле php.ini необходимо найти и раскомментировать (убрать точку с запятой) строку:
+;extension=php_pgsql.dll
+
+Пример программы (test.php):
+<?php
+  $conn = pg_connect('host=localhost port=5432 ' .
+	'dbname=appdb user=app ' .
+	'password=p@ssw0rd') or die;
+
+  $query = pg_query('SELECT * FROM greeting') or die;
+
+  while ($row = pg_fetch_array($query)) {
+	echo $row[0].PHP_EOL;
+  }
+
+  pg_free_result($query);
+
+  pg_close($conn);
+?>
+
+Выполняем:
+$ php test.php
+Привет, мир!
+
+Расширение для PostgreSQL описано в документации:
+php.net/manual/ru/book.pgsql.php.
+
+Python
+В языке Python для работы с PostgreSQL обычно используется библиотека 
+psycopg (название произносится как «сайко-пи-джи»).
+
+
+
+Драйвер для Linux:
+$ sudo apt-get install python3-psycopg2
+
+Python для Windows - с сайта python.org. 
+Драйвер - проект initd.org/psycopg (выберите версию, соответствующую установленной версии Python). 
+Там же находится необходимая документация.
+
+Пример программы (test.py):
+
+import psycopg2
+
+conn = psycopg2.connect(
+ host='localhost',
+ port='5432',
+ database='appdb',
+ user='app',
+ password='p@ssw0rd')
+
+cur = conn.cursor()
+
+cur.execute('SELECT * FROM greeting')
+
+rows = cur.fetchall()
+
+for row in rows:
+ print(row[0])
+
+conn.close()
+
+
+Выполняем:
+$ python3 test.py
+Привет, мир!
+
+
+
+Java
+В языке Java работа с базами данных организована через интерфейс JDBC. 
+
+
+// JDK
+$ sudo apt-get install openjdk-23-jdk
+
+Пакет с драйвером JDBC:
+$ sudo apt-get install libpostgresql-jdbc-java
+
+JDK для ОС Windows можно скачать с сайта oracle.com/
+technetwork/java/javase/downloads. 
+
+Драйвер JDBC доступен на сайте 
+jdbc.postgresql.org (выберите версию, которая соответствует установленной версии JDK). 
+Там же находится и документация.
+
+Пример программы (Test.java):
+import java.sql.*;
+
+public class Test {
+ public static void main(String[] args)throws SQLException {
+
+ Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/appdb","app", "p@ssw0rd");
+
+ Statement st = conn.createStatement();
+
+ ResultSet rs = st.executeQuery("SELECT * FROM greeting");
+
+ while (rs.next()) {
+	System.out.println(rs.getString(1));
+ }
+
+ rs.close();
+
+ st.close();
+
+ conn.close();
+ }
+}
+Компилируем и выполняем программу, указывая в ключе
+путь к классу-драйверу JDBC (в Windows пути разделяются
+не двоеточием, а точкой с запятой):
+
+$ javac Test.java
+$ java -cp .:/usr/share/java/postgresql-jdbc4.jar \
+
+Test
+Привет, мир!
+
+

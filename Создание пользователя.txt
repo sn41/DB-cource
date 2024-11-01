@@ -1,0 +1,53 @@
+ХХ - версия программы 
+
+Информация базы данных
+/var/lib/postgresql/ХХ/main/.
+
+Журнал сообщений сервера.
+/var/log/postgresql/postgresql-ХХ-main.log.
+
+/etc/postgresql/ХХ/main/postgresql.conf — основной конфигурационный файл, содержащий значения параметров сервера;
+
+/etc/postgresql/ХХ/main/pg_hba.conf — файл, определяющий настройки доступа. 
+В целях безопасности по умолчанию 
+доступ разрешен только с локального компьютера и 
+только от лица пользователя базы данных,
+	имя которого совпадает с именем учетной записи операционной системы.
+
+
+
+Отдельный пользователь
+postgres обладает правами суперпользователя, через приложение с этими правами подключаться к базе не следует. 
+
+Лучше создать нового пользователя и сделать его владельцем отдельной
+базы данных — тогда его права будут ограничены этой базой.
+
+postgres=# CREATE USER app PASSWORD 'p@ssw0rd';
+	CREATE ROLE
+
+postgres=# CREATE DATABASE appdb OWNER app;
+	CREATE DATABASE
+
+//о правах и пользователях https://postgrespro.ru/docs/postgrespro/16/ddl-priv
+
+
+Подключиться к новой базе данных от имени созданного пользователя:
+используем: 	имя базы данных (appdb), 
+		имя пользователя (app), 
+		узел (localhost или 127.0.0.1) и номер порта (5432)
+
+postgres=# \c appdb app localhost 5432
+	
+Password for user app: ***
+You are now connected to database "appdb" as user
+"app" on host "127.0.0.1" at port "5432".
+appdb=>
+
+Знак приглашения ввода '#' сменился на '>' 
+
+Со своей базой данных пользователь app работает без ограничений. 
+Например, в ней можно создать таблицу:
+appdb=> CREATE TABLE greeting(s text);
+CREATE TABLE
+appdb=> INSERT INTO greeting VALUES ('Привет, мир!');
+INSERT 0 1
